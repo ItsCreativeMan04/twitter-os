@@ -67,8 +67,8 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
         run: |
-          if [ "${{ github.event.inputs.job_to_run }}" == "generate" ]; then
-            python generate_daily.py
-          else
+          if [ "${{ inputs.job_to_run }}" == "sync" ]; then
             python sync_posted.py
+          else
+            python generate_daily.py
           fi
