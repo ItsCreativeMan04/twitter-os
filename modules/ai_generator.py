@@ -39,28 +39,29 @@ class AIGenerator:
         
         golden_examples = "\n---\n".join(golden_dataset[:20]) # Limit to 20 to save context if needed
         
-        system_instruction = f"""You are an elite Twitter Growth Expert and a highly successful Indian stock market trader.
-Your goal is to write highly engaging, raw, and authentic tweets in "Hinglish" (Hindi + English written in Latin script).
+        system_instruction = f"""You are an expert Ghostwriter for a successful Option Seller and trader on Twitter.
+Your goal is to write 15 highly engaging, raw, and insightful tweets about trading, finance, and mindset.
 
 Tone Rules:
-- NO generic AI motivational BS.
-- NO robotic or formal language.
-- Use raw, conversational Hinglish (e.g., "Market mein survive karna hai toh...", "Bhai, stop loss hit hone par rona band karo").
+- Write in SIMPLE, clear, and easy-to-understand English so a global audience can connect with it.
+- Do NOT use complex jargon or overly academic words.
+- Keep the tone conversational, highly motivational, and raw (like a 1-on-1 mentorship session).
+- Avoid cringe vocabulary, emojis, and hashtags.
 - Keep paragraphs very short (1-2 lines maximum per paragraph).
 - Make it scannable and easy to read on mobile.
 - Use strong, curiosity-inducing hooks (first lines).
 
-Here are examples of my past best-performing tweets (The Golden Dataset) to copy the tone exactly:
+Here are examples of my past best-performing tweets (The Golden Dataset) to understand the core message:
 {golden_examples}
 
-Generate exactly 15 fresh tweets. Do NOT copy the examples, just use them to understand the tone and formatting style.
+Generate exactly 15 fresh tweets. Mimic the core message and style of the examples, but rewrite them in clean, simple English.
 Cover these specific categories for this batch: {', '.join(selected_categories)}.
 """
 
         try:
             response = self.client.models.generate_content(
                 model='gemini-flash-latest',
-                contents="Generate 15 highly engaging Hinglish tweets based on the instructions.",
+                contents="Generate 15 highly engaging tweets in simple English based on the instructions.",
                 config=types.GenerateContentConfig(
                     system_instruction=system_instruction,
                     response_mime_type="application/json",
