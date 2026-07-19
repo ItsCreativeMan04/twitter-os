@@ -59,7 +59,7 @@ Cover these specific categories for this batch: {', '.join(selected_categories)}
 
         try:
             response = self.client.models.generate_content(
-                model='gemini-1.5-flash-latest',
+                model='gemini-2.5-flash',
                 contents="Generate 15 highly engaging Hinglish tweets based on the instructions.",
                 config=types.GenerateContentConfig(
                     system_instruction=system_instruction,
@@ -87,11 +87,4 @@ Cover these specific categories for this batch: {', '.join(selected_categories)}
             
         except Exception as e:
             print(f"Error generating tweets: {e}")
-            print("--- DEBUG: LISTING AVAILABLE MODELS FOR THIS API KEY ---")
-            try:
-                for m in self.client.models.list():
-                    print(f"Model: {m.name}")
-            except Exception as e2:
-                print(f"Could not list models: {e2}")
-            print("------------------------------------------------------")
             return []

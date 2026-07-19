@@ -10,9 +10,9 @@ class DBClient:
     def get_embedding(self, text: str) -> list[float]:
         """Generates a text embedding using Gemini."""
         try:
-            # text-embedding-004 is Google's recommended embedding model
+            # Use the available embedding model from the user's debug list
             response = self.ai_client.models.embed_content(
-                model='text-embedding-004',
+                model='gemini-embedding-2',
                 contents=text
             )
             return response.embeddings[0].values
