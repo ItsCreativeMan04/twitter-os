@@ -59,7 +59,7 @@ Cover these specific categories for this batch: {', '.join(selected_categories)}
 
         try:
             response = self.client.models.generate_content(
-                model='gemini-1.5-flash',
+                model='gemini-1.5-flash-latest',
                 contents="Generate 15 highly engaging Hinglish tweets based on the instructions.",
                 config=types.GenerateContentConfig(
                     system_instruction=system_instruction,
