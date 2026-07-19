@@ -36,8 +36,10 @@ jobs:
           pip install google-genai supabase gspread oauth2client pandas python-dotenv
 
       - name: Create credentials.json
+        env:
+          GCP_CREDS: ${{ secrets.GCP_CREDENTIALS_JSON }}
         run: |
-          echo "${{ secrets.GCP_CREDENTIALS_JSON }}" > credentials.json
+          echo "$GCP_CREDS" > credentials.json
 
       - name: Run Morning Generation (Scheduled)
         if: github.event.schedule == '30 21 * * *'
