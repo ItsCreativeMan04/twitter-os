@@ -1,0 +1,72 @@
+name: Twitter OS Automation
+
+on:
+  schedule:
+    # Run Generation at 3:00 AM IST (which is 21:30 UTC previous day)
+    - cron: '30 21 * * *'
+    # Run Sync at 11:00 PM IST (which is 17:30 UTC)
+    - cron: '30 17 * * *'
+  workflow_dispatch:
+    # Allow manual triggering from GitHub UI
+    inputs:
+      job_to_run:
+        description: 'Which job to run manually?'
+        required: true
+        default: 'generate'
+        type: choice
+        options:
+          - generate
+          - sync
+
+jobs:
+  run-twitter-os:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-genai supabase gspread oauth2client pandas python-dotenv
+
+      - name: Create credentials.json
+        run: |
+          echo "${{ secrets.GCP_CREDENTIALS_JSON }}" > credentials.json
+
+      - name: Run Morning Generation (Scheduled)
+        if: github.event.schedule == '30 21 * * *'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+        run: python generate_daily.py
+        
+      - name: Run Nightly Sync (Scheduled)
+        if: github.event.schedule == '30 17 * * *'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+        run: python sync_posted.py
+
+      - name: Run Manual Job
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+        run: |
+          if [ "${{ github.event.inputs.job_to_run }}" == "generate" ]; then
+            python generate_daily.py
+          else
+            python sync_posted.py
+          fi
