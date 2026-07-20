@@ -9,8 +9,8 @@ class TweetDraft(BaseModel):
     hook_score: int = Field(description="Score from 1-10 on how strong the opening line is")
     tweet_draft: str = Field(description="The actual tweet text in raw Hinglish tone")
     why_it_works: str = Field(description="Brief explanation of why this tweet will perform well")
-    authentic_image_idea: str = Field(description="A highly specific suggestion for a real trading chart or P&L screenshot to attach")
-    stock_photo_keyword: str = Field(description="A single 1-word keyword (like 'wealth', 'chart', 'mindset') to fetch a stock photo")
+    ai_image_prompt: str = Field(description="A highly detailed, photorealistic prompt for Midjourney/DALL-E strictly set in an Indian stock market context (e.g., Dalal Street, Indian traders, NSE/BSE).")
+    stock_photo_keyword: str = Field(description="A 2-3 word search query (e.g., 'mumbai finance', 'indian stock market') to fetch a relevant stock photo")
 
 class GeneratedTweets(BaseModel):
     tweets: list[TweetDraft] = Field(description="List of exactly 15 generated tweets")
@@ -63,7 +63,7 @@ Cover these specific categories for this batch: {', '.join(selected_categories)}
         try:
             response = self.client.models.generate_content(
                 model='gemini-flash-latest',
-                contents="Generate 15 highly engaging tweets in simple English based on the instructions. For each tweet, suggest a specific screenshot/chart idea, and a 1-word search keyword.",
+                contents="Generate 15 highly engaging tweets in simple English based on the instructions. For each tweet, provide a photorealistic AI image prompt strictly set in an Indian stock market context, and a 2-3 word search keyword.",
                 config=types.GenerateContentConfig(
                     system_instruction=system_instruction,
                     response_mime_type="application/json",
@@ -78,13 +78,14 @@ Cover these specific categories for this batch: {', '.join(selected_categories)}
             # Convert to the dict format expected by our Sheets and DB clients
             formatted_tweets = []
             for t in data.get("tweets", []):
-                keyword = t.get("stock_photo_keyword", "trading")
+                # Format keyword for URL (e.g. "indian stock market" -> "indian-stock-market")
+                keyword = t.get("stock_photo_keyword", "indian-finance").replace(" ", "-").lower()
                 formatted_tweets.append({
                     "Category": t.get("category"),
                     "Hook Score": t.get("hook_score"),
                     "Tweet Draft": t.get("tweet_draft"),
                     "Why it works": t.get("why_it_works"),
-                    "Authentic Image Idea": t.get("authentic_image_idea"),
+                    "AI Image Prompt": t.get("ai_image_prompt"),
                     "Stock Photo Link": f"https://unsplash.com/s/photos/{keyword}"
                 })
             

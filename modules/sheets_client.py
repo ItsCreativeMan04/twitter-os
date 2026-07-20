@@ -54,7 +54,7 @@ class SheetsClient:
         except gspread.exceptions.WorksheetNotFound:
             # Create if it doesn't exist
             worksheet = self.sheet.add_worksheet(title="Today's Queue", rows="100", cols="8")
-            headers = ["Date", "Category", "AI Hook Score", "Tweet Draft", "Status", "Why it works", "Authentic Image Idea", "Stock Photo Link"]
+            headers = ["Date", "Category", "AI Hook Score", "Tweet Draft", "Status", "Why it works", "AI Image Prompt", "Stock Photo Link"]
             worksheet.append_row(headers)
 
         rows = []
@@ -67,7 +67,7 @@ class SheetsClient:
                 tweet.get("Tweet Draft", ""),
                 "Queued",
                 tweet.get("Why it works", ""),
-                tweet.get("Authentic Image Idea", ""),
+                tweet.get("AI Image Prompt", ""),
                 tweet.get("Stock Photo Link", "")
             ])
         
