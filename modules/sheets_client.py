@@ -65,7 +65,7 @@ class SheetsClient:
                 tweet.get("Category", ""),
                 tweet.get("Hook Score", ""),
                 tweet.get("Tweet Draft", ""),
-                "Pending",
+                "Queued",
                 tweet.get("Why it works", ""),
                 tweet.get("Authentic Image Idea", ""),
                 tweet.get("Stock Photo Link", "")
@@ -74,6 +74,38 @@ class SheetsClient:
         if rows:
             worksheet.append_rows(rows)
             print(f"Appended {len(rows)} tweets to Today's Queue.")
+            
+        # Apply Dropdown Data Validation to Column E (Status)
+        try:
+            body = {
+                "requests": [
+                    {
+                        "setDataValidation": {
+                            "range": {
+                                "sheetId": worksheet.id,
+                                "startRowIndex": 1,
+                                "startColumnIndex": 4, # Column E (0-indexed)
+                                "endColumnIndex": 5
+                            },
+                            "rule": {
+                                "condition": {
+                                    "type": "ONE_OF_LIST",
+                                    "values": [
+                                        {"userEnteredValue": "Queued"},
+                                        {"userEnteredValue": "Posted"},
+                                        {"userEnteredValue": "Skipped"}
+                                    ]
+                                },
+                                "showCustomUi": True,
+                                "strict": True
+                            }
+                        }
+                    }
+                ]
+            }
+            self.sheet.batch_update(body)
+        except Exception as e:
+            print(f"Could not apply data validation: {e}")
 
     def get_posted_tweets(self) -> list[dict]:
         """
@@ -90,8 +122,8 @@ class SheetsClient:
             
     def remove_posted_tweets(self):
         """
-        Removes rows from 'Today's Queue' where Status is 'Posted'.
-        Call this AFTER saving them to Supabase.
+        Removes rows from 'Today's Queue' where Status is 'Posted' or 'Skipped'.
+        Call this AFTER saving posted ones to Supabase.
         """
         try:
             worksheet = self.sheet.worksheet("Today's Queue")
@@ -100,7 +132,7 @@ class SheetsClient:
             # gspread is 1-indexed, plus 1 for header row
             for i in range(len(records), 0, -1):
                 status = str(records[i-1].get("Status", "")).lower()
-                if status == "posted":
+                if status in ["posted", "skipped"]:
                     worksheet.delete_rows(i + 1)
         except Exception as e:
             print(f"Error removing posted tweets: {e}")
