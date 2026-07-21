@@ -13,29 +13,25 @@ def main():
     print("Fetching posted tweets from 'Today's Queue'...")
     posted_tweets = sheets.get_posted_tweets()
     
-    if not posted_tweets:
-        print("No tweets marked as 'Posted' today.")
-        return
-        
-    print(f"Found {len(posted_tweets)} posted tweets. Saving to database...")
-    
-    # 3. Save to Supabase (so they are part of the duplicate check tomorrow)
     success_count = 0
-    for tweet in posted_tweets:
-        tweet_text = tweet.get("Tweet Draft")
-        category = tweet.get("Category", "Unknown")
-        
-        if tweet_text:
-            if db.save_posted_tweet(tweet_text, category):
-                success_count += 1
-                
-    print(f"Successfully saved {success_count}/{len(posted_tweets)} tweets to Supabase.")
+    if posted_tweets:
+        print(f"Found {len(posted_tweets)} posted tweets. Saving to database...")
+        for tweet in posted_tweets:
+            tweet_text = tweet.get("Tweet Draft")
+            category = tweet.get("Category", "Unknown")
+            
+            if tweet_text:
+                if db.save_posted_tweet(tweet_text, category):
+                    success_count += 1
+                    
+        print(f"Successfully saved {success_count}/{len(posted_tweets)} tweets to Supabase.")
+    else:
+        print("No tweets marked as 'Posted' today.")
     
-    # 4. Remove them from the sheet to keep it clean
-    if success_count > 0:
-        print("Cleaning up Google Sheet...")
-        sheets.remove_posted_tweets()
-        print("Cleanup complete.")
+    # 3. Clean up Google Sheet (This removes both 'Posted' and 'Skipped')
+    print("Cleaning up Google Sheet (Removing Posted and Skipped rows)...")
+    sheets.remove_posted_tweets()
+    print("Cleanup complete.")
 
 if __name__ == "__main__":
     main()

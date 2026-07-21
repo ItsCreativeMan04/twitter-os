@@ -12,7 +12,7 @@ class DBClient:
         try:
             # Use the available embedding model from the user's debug list
             response = self.ai_client.models.embed_content(
-                model='gemini-embedding-2',
+                model='text-embedding-004',
                 contents=text
             )
             return response.embeddings[0].values
