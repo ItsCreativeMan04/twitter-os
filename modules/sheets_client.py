@@ -3,6 +3,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import datetime
 
+from datetime import timezone, timedelta
+
 # Scope for Google Sheets and Drive
 SCOPE = [
     "https://spreadsheets.google.com/feeds",
@@ -58,7 +60,10 @@ class SheetsClient:
             worksheet.append_row(headers)
 
         rows = []
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        # Fix UTC timezone issue (add 5.5 hours for IST)
+        ist_offset = timedelta(hours=5, minutes=30)
+        ist_time = datetime.datetime.now(timezone.utc) + ist_offset
+        today = ist_time.strftime("%Y-%m-%d")
         for tweet in tweets:
             rows.append([
                 today,
