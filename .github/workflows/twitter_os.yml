@@ -4,8 +4,8 @@ on:
   schedule:
     # Run Generation at 3:00 AM IST (which is 21:30 UTC previous day)
     - cron: '30 21 * * *'
-    # Run Sync at 11:00 PM IST (which is 17:30 UTC)
-    - cron: '30 17 * * *'
+    # Run Sync at 2:00 AM IST (which is 20:30 UTC previous day)
+    - cron: '30 20 * * *'
   workflow_dispatch:
     # Allow manual triggering from GitHub UI
     inputs:
@@ -51,7 +51,7 @@ jobs:
         run: python generate_daily.py
         
       - name: Run Nightly Sync (Scheduled)
-        if: github.event.schedule == '30 17 * * *'
+        if: github.event.schedule == '30 20 * * *'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
