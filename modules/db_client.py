@@ -20,10 +20,10 @@ class DBClient:
             print(f"Error generating embedding: {e}")
             return []
 
-    def is_duplicate(self, tweet_text: str, threshold: float = 0.8) -> bool:
+    def is_duplicate(self, tweet_text: str, threshold: float = 0.75) -> bool:
         """
         Checks if a tweet is semantically similar to any past tweets.
-        Returns True if a similar tweet is found (>80% similarity).
+        Returns True if a similar tweet is found (>75% similarity).
         """
         embedding = self.get_embedding(tweet_text)
         if not embedding:
@@ -37,11 +37,11 @@ class DBClient:
             ).execute()
             
             if response.data and len(response.data) > 0:
-                print(f"Duplicate found! Similarity: {response.data[0]['similarity']:.2f}")
+                print(f"Vector duplicate found! Similarity: {response.data[0]['similarity']:.2f}")
                 return True
             return False
         except Exception as e:
-            print(f"Error checking for duplicates: {e}")
+            print(f"Error checking Supabase vector duplicates: {e}")
             return False
 
     def save_posted_tweet(self, tweet_text: str, category: str):

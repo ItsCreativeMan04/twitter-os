@@ -33,7 +33,7 @@ class AIGenerator:
     def __init__(self, api_key: str):
         self.client = genai.Client(api_key=api_key)
 
-    def generate_tweets(self, golden_dataset: list[str]) -> list[dict]:
+    def generate_tweets(self, golden_dataset: list[str], existing_tweets: list[str] = None) -> list[dict]:
         """Generates 15 draft tweets using Gemini."""
         
         # Select 5 random categories to focus on for variety
@@ -41,6 +41,11 @@ class AIGenerator:
         
         golden_examples = "\n---\n".join(golden_dataset[:20]) # Limit to 20 to save context if needed
         
+        avoid_instruction = ""
+        if existing_tweets:
+            recent_avoid = "\n".join([f"- {t[:120]}" for t in existing_tweets[-20:]])
+            avoid_instruction = f"CRITICAL DUP CHECK: DO NOT generate any tweets that repeat or closely resemble these existing tweets in today's queue:\n{recent_avoid}\n"
+
         system_instruction = f"""You are an expert Ghostwriter for a successful Option Seller and trader on Twitter.
 Your goal is to write 15 highly engaging, raw, and insightful tweets about trading, finance, and mindset.
 
@@ -53,6 +58,7 @@ Tone Rules:
 - Make it scannable and easy to read on mobile.
 - Use strong, curiosity-inducing hooks (first lines).
 
+{avoid_instruction}
 Here are examples of my past best-performing tweets (The Golden Dataset) to understand the core message:
 {golden_examples}
 
@@ -83,7 +89,7 @@ Cover these specific categories for this batch: {', '.join(selected_categories)}
                 formatted_tweets.append({
                     "Category": t.get("category"),
                     "Hook Score": t.get("hook_score"),
-                    "Tweet Draft": t.get("tweet_draft"),
+                    "Tweet Draft": t.get("tweet_draft", "").replace("\\n", "\n"),
                     "Why it works": t.get("why_it_works"),
                     "AI Image Prompt": t.get("ai_image_prompt"),
                     "Stock Photo Link": f"https://unsplash.com/s/photos/{keyword}"

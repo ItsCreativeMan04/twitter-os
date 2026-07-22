@@ -46,6 +46,16 @@ class SheetsClient:
             print("Worksheet 'Golden Dataset' not found. Returning empty list.")
             return []
 
+    def get_existing_queued_tweets(self) -> list[str]:
+        """Reads 'Today's Queue' tab to fetch all currently queued tweet drafts."""
+        try:
+            worksheet = self.sheet.worksheet("Today's Queue")
+            records = worksheet.get_all_records()
+            return [str(record.get("Tweet Draft", "")) for record in records if record.get("Tweet Draft")]
+        except Exception as e:
+            print(f"Could not fetch existing queued tweets: {e}")
+            return []
+
     def append_generated_tweets(self, tweets: list[dict]):
         """
         Appends newly generated tweets to 'Today's Queue'.
